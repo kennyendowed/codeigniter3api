@@ -70,6 +70,25 @@ $route['api/token']['get'] = 'api/customer/me';
 
 
 
+//User API Route
+/**
+*API Route For Admin
+
+*/
+
+$route['api/fetch_product']['get'] = 'api/customer/fetch_product';
+$route['api/register']['post'] = 'api/auth/store';
+
+
+
+
+
+//User API Route
+/**
+*API Route For Customer
+
+*/
+
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

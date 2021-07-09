@@ -1,13 +1,15 @@
 
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
+
 use chriskacerguis\RestServer\RestController;
 use \Firebase\JWT\JWT;
 use Carbon\Carbon;
 
 
-class Customer extends RestController {
-var $data =array();
+class Customer extends RestController
+{
+	var $data = array();
 	/**
 	 * Index Page for this controller.
 	 *
@@ -23,36 +25,43 @@ var $data =array();
 	 * map to /index.php/welcome/<method_name>
 	 * @see https://codeigniter.com/user_guide/general/urls.html
 	 */
-	 function __construct()
- 	{
- 			// Construct the parent class
- 			parent::__construct();
-      	 $this->data['token']= $this->input->get_request_header('token');
-		    validateAuth($this->data['token']);
-		 $this->load->model(['user_model']);
-		 $this->load->helper(['my_helper','string']);
-		 $_POST = json_decode(file_get_contents("php://input"), true);
+	function __construct()
+	{
+		// Construct the parent class
+		parent::__construct();
+		$this->data['token'] = $this->input->get_request_header('token');
+		validateAuth($this->data['token']);
+		$this->load->model(['user_model','Products_model']);
+		$this->load->helper(['my_helper', 'string']);
+		$_POST = json_decode(file_get_contents("php://input"), true);
+	}
 
- 	}
+	public function user_get()
+	{
+		$jwt = decode_jwt_token($this->data['token']);
+		$users = $this->user_model->find($jwt->data->id);
+		return $this->response(['users' => $users]);
+	}
 
-      public function user_get()
-      {
-        	$jwt=decode_jwt_token($this->data['token']);
-        $users = $this->user_model->find($jwt->data->id);
-        return $this->response(['users' => $users]);
-      }
+	public function me_get()
+	{
 
-      public function me_get()
-    	 {
-
-    		$jwt=decode_jwt_token($this->data['token']);
-     if ($jwt) {
-    			$this->response($jwt, RestController::HTTP_OK);
-    	} else {
-    			$this->response(['status' => FALSE, 'message' => 'Not Found'], RestController::HTTP_NOT_FOUND);
-    	}
-
-    	 }
+		$jwt = decode_jwt_token($this->data['token']);
+		if ($jwt) {
+			$this->response($jwt, RestController::HTTP_OK);
+		} else {
+			$this->response(['status' => FALSE, 'message' => 'Not Found'], RestController::HTTP_NOT_FOUND);
+		}
+	}
 
 
+	public function fetch_product_get()
+	{
+		$data['products'] = $this->Products_model->get_all_products();
+		if ($data) {
+			$this->response(['responces' => $data], RestController::HTTP_OK);
+		} else {
+			$this->response(['status' => FALSE, 'message' => 'Not Found'], RestController::HTTP_NOT_FOUND);
+		}
+	}
 }
